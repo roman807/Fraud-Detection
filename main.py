@@ -41,6 +41,7 @@ def main():
     X_train_l, X_test_l = [], []
     y_train_l, y_test_l = [], []
     cost_mat_train_l, cost_mat_test_l = [], []
+    #cost_FN_train_l, cost_FN_test_l = [], []
     for train_index, test_index in kf.split(X):
         X_train_l.append(X[train_index, :])
         X_test_l.append(X[test_index, :])
@@ -64,8 +65,8 @@ def main():
         print('Logistic regression ' + str(i + 1) + '/' + str(n_splits) + ' ...')
         lr = LogisticRegression()
         lr.fit(X_train, y_train)
-        y_pred_train_lr_probas.append(lr.predict_proba(X_train)[:, 1])
-        y_pred_test_lr_probas.append(lr.predict_proba(X_test)[:, 1])
+        y_pred_train_lr_probas.append(np.round(lr.predict_proba(X_train)[:, 1], 3))
+        y_pred_test_lr_probas.append(np.round(lr.predict_proba(X_test)[:, 1], 3))
         y_pred_train_lr.append(lr.predict(X_train))
         y_pred_test_lr.append(lr.predict(X_test))
     
@@ -77,8 +78,8 @@ def main():
         clf = ANN.clf(indput_dim=X_train.shape[1], dropout=0.2)
         clf.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         clf.fit(X_train, y_train, batch_size=50, epochs=2, verbose=1)
-        y_pred_train_ann_proba = clf.predict(X_train, verbose=1)
-        y_pred_test_ann_proba = clf.predict(X_test, verbose=1)
+        y_pred_train_ann_proba = np.round(clf.predict(X_train, verbose=1), 3).reshape(-1)
+        y_pred_test_ann_proba = np.round(clf.predict(X_test, verbose=1), 3).reshape(-1)
         y_pred_train_ann_probas.append(y_pred_train_ann_proba)
         y_pred_test_ann_probas.append(y_pred_test_ann_proba)
         y_pred_train_ann.append((y_pred_train_ann_proba > 0.5).astype(int).reshape(-1))
@@ -96,12 +97,14 @@ def main():
         clf.compile(optimizer='adam', loss=ANN.custom_loss(cost_FP, cost_TP, cost_TN),
                     metrics=['accuracy'])
         clf.fit(X_train, y_input, batch_size=50, epochs=2, verbose=1)
-        y_pred_train_ann_cs_proba = clf.predict(X_train, verbose=1)
-        y_pred_test_ann_cs_proba = clf.predict(X_test, verbose=1)
+        #y_pred_train_ann_cs_proba = clf.predict(X_train, verbose=1)
+        #y_pred_test_ann_cs_proba = clf.predict(X_test, verbose=1)
         #y_pred_train_ann_cs_probas.append(y_pred_train_ann_cs_proba)
         #y_pred_test_ann_cs_probas.append(y_pred_test_ann_cs_proba)
-        y_pred_train_ann_cs.append((y_pred_train_ann_cs_proba > 0.5).astype(int).reshape(-1))
-        y_pred_test_ann_cs.append((y_pred_test_ann_cs_proba > 0.5).astype(int).reshape(-1))
+        y_pred_train_ann_cs.append((clf.predict(X_train, verbose=1) > 0.5).\
+                                   astype(int).reshape(-1))
+        y_pred_test_ann_cs.append((clf.predict(X_test, verbose=1) > 0.5).\
+                                  astype(int).reshape(-1))
     
     # Logistic Regression classify according to expected minimum costs (mc)
     y_pred_train_lr_mc, y_pred_test_lr_mc = [], []
@@ -110,10 +113,18 @@ def main():
         cost_0 = (1 - y_train_proba) * cm_train[:, 3] + y_train_proba * cm_train[:, 1]
         cost_1 = (1 - y_train_proba) * cm_train[:, 0] + y_train_proba * cm_train[:, 2]
         y_pred_train_lr_mc.append((cost_1 < cost_0).astype(int))
+        #y_pred_train_lr_mc.append(((
+        #    (1 - y_train_proba) * cost_TN + y_train_proba * cost_FN_train) <
+        #    ((1 - y_train_proba) * cost_FP + y_train_proba * cost_TP))\
+        #    .astype(int))        
         cost_0 = (1 - y_test_proba) * cm_test[:, 3] + y_test_proba * cm_test[:, 1]
         cost_1 = (1 - y_test_proba) * cm_test[:, 0] + y_test_proba * cm_test[:, 2]
         y_pred_test_lr_mc.append((cost_1 < cost_0).astype(int))
-        
+        #y_pred_test_lr_mc.append(((
+        #    (1 - y_test_proba) * cost_TN + y_test_proba * cost_FN_test) <
+        #    ((1 - y_test_proba) * cost_FP + y_test_proba * cost_TP))\
+        #    .astype(int))
+
     # ANN classify according to expected minimum costs (mc)
     y_pred_train_ann_mc, y_pred_test_ann_mc = [], []
     for y_train_proba, y_test_proba, cm_train, cm_test in zip(y_pred_train_ann_probas,\
@@ -121,13 +132,21 @@ def main():
         cost_0 = (1 - y_train_proba) * cm_train[:, 3] + y_train_proba * cm_train[:, 1]
         cost_1 = (1 - y_train_proba) * cm_train[:, 0] + y_train_proba * cm_train[:, 2]
         y_pred_train_ann_mc.append((cost_1 < cost_0).astype(int))
+#        y_pred_train_ann_mc.append(((
+#            (1 - y_train_proba) * cost_TN + y_train_proba * cost_FN_train) <
+#            ((1 - y_train_proba) * cost_FP + y_train_proba * cost_TP))\
+#            .astype(int))      
         cost_0 = (1 - y_test_proba) * cm_test[:, 3] + y_test_proba * cm_test[:, 1]
         cost_1 = (1 - y_test_proba) * cm_test[:, 0] + y_test_proba * cm_test[:, 2]
         y_pred_test_ann_mc.append((cost_1 < cost_0).astype(int))
-    
+#        y_pred_test_ann_mc.append(((
+#            (1 - y_test_proba) * cost_TN + y_test_proba * cost_FN_test) <
+#            ((1 - y_test_proba) * cost_FP + y_test_proba * cost_TP))\
+#            .astype(int))
+        
     # ---------- Evaluate results ---------- #
-    eval_results.evaluate('Random', y_train_l, y_test_l, y_pred_train_rand, y_pred_test_rand,
-                          cost_mat_train_l, cost_mat_test_l)
+#    eval_results.evaluate('Random', y_train_l, y_test_l, y_pred_train_rand, y_pred_test_rand,
+#                          cost_mat_train_l, cost_mat_test_l)
     eval_results.evaluate('Logistic Regression', y_train_l, y_test_l, y_pred_train_lr, 
                           y_pred_test_lr, cost_mat_train_l, cost_mat_test_l)
     eval_results.evaluate('ANN', y_train_l, y_test_l, y_pred_train_ann, y_pred_test_ann,
