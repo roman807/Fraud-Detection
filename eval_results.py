@@ -49,3 +49,20 @@ def evaluate(name, y_train, y_test, y_pred_train, y_pred_test, cost_mat_train, c
           ', individual: ' + str(cost_savings_train))
     print('Cost savings test:  ' + str(np.round(np.mean(cost_savings_test), 3)) + 
           ', individual: ' + str(cost_savings_test))
+    
+def scores_and_costs(y_true_l, y_pred_l, cost_mat):
+    f1_scores, cost_savings = [], []
+    for y_true, y_pred, cost_mat in zip(y_true_l, y_pred_l, cost_mat):
+        f1_scores.append(np.round(f1_score(y_true, y_pred), 3))
+        max_costs_ = max_costs(y_true, cost_mat)
+        costs_ = costs(y_true, y_pred, cost_mat)
+        cost_savings.append(np.round((max_costs_ - costs_) / max_costs_, 3))
+    return f1_scores, cost_savings
+
+
+
+
+
+
+
+
