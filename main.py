@@ -9,7 +9,6 @@ Created on Mon Mar 11 07:10:40 2019
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-#from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 import os
 os.chdir('/home/roman/Documents/Projects/Cost_Sensitive')
@@ -128,6 +127,8 @@ def main():
         y_pred_test_ann_mc.append((cost_1 < cost_0).astype(int))
     
     # ---------- Save results ---------- #
+    np.save('results/cost_mat_train_l', cost_mat_train_l)
+    np.save('results/cost_mat_test_l', cost_mat_test_l)
     np.save('results/y_pred_train_lr.npy', y_pred_train_lr)
     np.save('results/y_pred_test_lr.npy', y_pred_test_lr)
     np.save('results/y_pred_train_lr_probas.npy', y_pred_train_lr_probas)
@@ -140,6 +141,10 @@ def main():
     np.save('results/y_pred_test_ann_cs.npy', y_pred_test_ann_cs)
     np.save('results/y_pred_train_ann_cs_probas.npy', y_pred_train_ann_cs_probas)
     np.save('results/y_pred_test_ann_cs_probas.npy', y_pred_test_ann_cs_probas)
+    np.save('results/y_pred_train_lr_mc.npy', y_pred_train_lr_mc)
+    np.save('results/y_pred_test_lr_mc.npy', y_pred_test_lr_mc)
+    np.save('results/y_pred_train_ann_mc.npy', y_pred_train_ann_mc)
+    np.save('results/y_pred_test_ann_mc.npy', y_pred_test_ann_mc)
     
     # ---------- Evaluate results ---------- #
     eval_results.evaluate('Random', y_train_l, y_test_l, y_pred_train_rand, y_pred_test_rand,
