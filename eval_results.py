@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 11 08:40:34 2019
+#
+# Roman Moser, 3/28/19
 
-@author: roman
+"""
+eval_results.py
+ * calculate costs and max_costs
+ * evaluate results (called from main.py -> print results to console)
+ * define score_and_costs for results.ipynb
 """
 
 import numpy as np
@@ -16,7 +20,6 @@ def costs(y_true, y_pred, cost_mat):
 
 def max_costs(y_true, cost_mat):
     cost_all_neg = sum(y_true * cost_mat[:, 1] + (1 - y_true) * cost_mat[:, 3])
-    #cost_all_pos = sum(y_true * cost_mat[:, 2] + (1 - y_true) * cost_mat[:, 0])
     return cost_all_neg
 
 def evaluate(name, y_train, y_test, y_pred_train, y_pred_test, cost_mat_train, cost_mat_test):
@@ -58,11 +61,3 @@ def scores_and_costs(y_true_l, y_pred_l, cost_mat):
         costs_ = costs(y_true, y_pred, cost_mat)
         cost_savings.append(np.round((max_costs_ - costs_) / max_costs_, 3))
     return f1_scores, cost_savings
-
-
-
-
-
-
-
-

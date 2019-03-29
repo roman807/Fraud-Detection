@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 11 07:10:40 2019
+#
+# Roman Moser, 3/28/19
 
-@author: roman
+"""
+main.py: Predict fraudulent transactions with the following models:
+ * Logistic regression
+ * Artificial Neural Network (ANN)
+ * Cost-sensitive ANN
+ * Logistic Regression with cost-dependent classification
+ * ANN with cost-dependent classification
+run with: python3 main.py 
 """
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
-import os
-os.chdir('/home/roman/Documents/Projects/Cost_Sensitive')
 import ANN
 import eval_results
 from sklearn.model_selection import KFold
@@ -163,8 +168,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
-    
-    
-    
-    
